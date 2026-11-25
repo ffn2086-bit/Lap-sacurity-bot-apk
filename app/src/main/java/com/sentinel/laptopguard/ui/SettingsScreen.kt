@@ -83,7 +83,7 @@ fun SettingsScreen(onBack: () -> Unit) {
             } catch (e: Exception) {
             }
         }
-        Toast.makeText(ctx, tr("saved"), Toast.LENGTH_SHORT).show()
+        Toast.makeText(ctx, L.t(ctx, "saved"), Toast.LENGTH_SHORT).show()
     }
 
     Column(
