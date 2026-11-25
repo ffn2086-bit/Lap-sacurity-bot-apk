@@ -40,25 +40,16 @@ jobs:
       - name: Build debug APK
         id: build
         continue-on-error: true
-        run: gradle clean assembleDebug --stacktrace --no-daemon --no-build-cache --rerun-tasks 2>&1 | tee build-error.log
+        run: gradle clean assembleDebug --stacktrace --no-daemon --no-build-cache 2>&1 | tee build-error.log
 
-      - name: List produced outputs
-        if: always()
+      - name: Save error log to repo if build failed
+        if: steps.build.outcome == 'failure'
         run: |
-          echo "=== find app/build/outputs ===" > outputs-find.log
-          find app/build/outputs -type f >> outputs-find.log 2>&1 || echo "no outputs dir" >> outputs-find.log
-          echo "=== find app/build for apk anywhere ===" >> outputs-find.log
-          find app/build -iname "*.apk" >> outputs-find.log 2>&1 || true
-          cat outputs-find.log
-
-      - name: Always save diagnostic logs to repo
-        if: always()
-        run: |
-          tail -n 400 build-error.log > build-error-tail.log 2>/dev/null || echo "no build-error.log" > build-error-tail.log
+          tail -n 400 build-error.log > build-error-tail.log
           git config user.email "bot@users.noreply.github.com"
           git config user.name "build-bot"
-          git add -f build-error-tail.log outputs-find.log
-          git commit -m "Diagnostic logs [skip ci]" || true
+          git add -f build-error-tail.log
+          git commit -m "Add build error log [skip ci]" || true
           git push || true
 
       - name: Fail job if build failed
