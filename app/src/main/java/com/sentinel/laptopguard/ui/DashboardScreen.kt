@@ -99,12 +99,27 @@ fun Dashboard(onOpenSettings: () -> Unit) {
     val configured = Prefs.dbUrl(ctx).isNotEmpty()
     val online = connected && status.lastChangeMs > 0L && (now - status.lastChangeMs) < 20_000L
 
+    // IMPORTANT: tr(key) is a @Composable function. It must only ever be called directly
+    // inside a @Composable body (e.g. as a Text() argument) - never from inside a plain
+    // onClick = { ... } lambda, a coroutine, or a non-composable local fun. So every string
+    // that a click handler needs is resolved here, up front, into a plain String val, and
+    // the handlers below only ever reference those already-resolved vals.
+    val failMsg = tr("test_fail")
+    val noMapsMsg = tr("no_maps")
+    val lockLabel = tr("lock_now")
+    val sirenLabel = tr("siren")
+    val stopLabel = tr("stop")
+    val photoLabel = tr("photo")
+    val locationLabel = tr("location")
+    val shutdownLabel = tr("shutdown")
+    val sleepLabel = tr("sleep")
+
     fun sendCmd(cmd: String, label: String) {
         scope.launch {
             val ok = withContext(Dispatchers.IO) { CommandSender.send(ctx, cmd) }
             Toast.makeText(
                 ctx,
-                if (ok) "$label ✓" else tr("test_fail"),
+                if (ok) "$label ✓" else failMsg,
                 Toast.LENGTH_SHORT
             ).show()
         }
@@ -232,31 +247,31 @@ fun Dashboard(onOpenSettings: () -> Unit) {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 SectionLabel(tr("remote_control"))
                 MetalButton(
-                    tr("lock_now"),
-                    onClick = { sendCmd("lock", tr("lock_now")) },
+                    lockLabel,
+                    onClick = { sendCmd("lock", lockLabel) },
                     modifier = Modifier.fillMaxWidth()
                 )
                 Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                     MetalButton(
-                        tr("siren"),
-                        onClick = { sendCmd("siren", tr("siren")) },
+                        sirenLabel,
+                        onClick = { sendCmd("siren", sirenLabel) },
                         modifier = Modifier.weight(2f),
                         danger = true
                     )
                     MetalButton(
-                        tr("stop"),
-                        onClick = { sendCmd("siren_stop", tr("stop")) },
+                        stopLabel,
+                        onClick = { sendCmd("siren_stop", stopLabel) },
                         modifier = Modifier.weight(1f)
                     )
                 }
                 MetalButton(
-                    tr("photo"),
-                    onClick = { sendCmd("photo", tr("photo")) },
+                    photoLabel,
+                    onClick = { sendCmd("photo", photoLabel) },
                     modifier = Modifier.fillMaxWidth()
                 )
                 MetalButton(
-                    tr("location"),
-                    onClick = { sendCmd("location", tr("location")) },
+                    locationLabel,
+                    onClick = { sendCmd("location", locationLabel) },
                     modifier = Modifier.fillMaxWidth()
                 )
                 MetalButton(
@@ -316,7 +331,7 @@ fun Dashboard(onOpenSettings: () -> Unit) {
                                     try {
                                         ctx.startActivity(Intent(Intent.ACTION_VIEW, uri))
                                     } catch (e: Exception) {
-                                        Toast.makeText(ctx, tr("no_maps"), Toast.LENGTH_SHORT).show()
+                                        Toast.makeText(ctx, noMapsMsg, Toast.LENGTH_SHORT).show()
                                     }
                                 },
                                 modifier = Modifier.fillMaxWidth()
@@ -364,15 +379,15 @@ fun Dashboard(onOpenSettings: () -> Unit) {
             confirmButton = {
                 TextButton(onClick = {
                     showPowerDialog = false
-                    sendCmd("shutdown", tr("shutdown"))
-                }) { Text(tr("shutdown"), color = HudColors.Crimson, fontWeight = FontWeight.Bold) }
+                    sendCmd("shutdown", shutdownLabel)
+                }) { Text(shutdownLabel, color = HudColors.Crimson, fontWeight = FontWeight.Bold) }
             },
             dismissButton = {
                 Row {
                     TextButton(onClick = {
                         showPowerDialog = false
-                        sendCmd("sleep", tr("sleep"))
-                    }) { Text(tr("sleep"), color = HudColors.SilverLight, fontWeight = FontWeight.Bold) }
+                        sendCmd("sleep", sleepLabel)
+                    }) { Text(sleepLabel, color = HudColors.SilverLight, fontWeight = FontWeight.Bold) }
                     TextButton(onClick = { showPowerDialog = false }) {
                         Text(tr("cancel"), color = HudColors.SilverDark)
                     }
