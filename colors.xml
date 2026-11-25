@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="bg_dark">#0D0F12</color>
+    <color name="panel_dark">#15181D</color>
+    <color name="panel_dark_hi">#1C2026</color>
+    <color name="silver">#C0C0C0</color>
+    <color name="silver_light">#E5E7EB</color>
+    <color name="silver_dark">#8A8D93</color>
+    <color name="steel">#5A5D63</color>
+    <color name="crimson">#FF1E27</color>
+    <color name="crimson_dark">#8E0A10</color>
+    <color name="white">#FFFFFF</color>
+    <color name="ic_launcher_background">#0D0F12</color>
+</resources>

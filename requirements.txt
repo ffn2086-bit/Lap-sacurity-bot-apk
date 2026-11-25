@@ -1,0 +1,6 @@
+requests>=2.31
+psutil>=5.9
+pywin32>=306
+opencv-python>=4.8
+pycaw>=20230407
+comtypes>=1.2
