@@ -35,11 +35,16 @@ jobs:
         uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: '8.7'
+          cache-disabled: true
 
       - name: Build debug APK
         id: build
         continue-on-error: true
-        run: gradle assembleDebug --stacktrace --no-daemon 2>&1 | tee build-error.log
+        run: gradle clean assembleDebug --stacktrace --no-daemon --no-build-cache --rerun-tasks 2>&1 | tee build-error.log
+
+      - name: List produced outputs
+        if: always()
+        run: find app/build/outputs -type f || echo "no outputs dir"
 
       - name: Save error log to repo if build failed
         if: steps.build.outcome == 'failure'
