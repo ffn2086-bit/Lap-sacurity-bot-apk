@@ -44,17 +44,22 @@ jobs:
 
       - name: List produced outputs
         if: always()
-        run: find app/build/outputs -type f || echo "no outputs dir"
-
-      - name: Save error log to repo if build failed
-        if: steps.build.outcome == 'failure'
         run: |
-          tail -n 300 build-error.log > build-error-tail.log
+          echo "=== find app/build/outputs ===" > outputs-find.log
+          find app/build/outputs -type f >> outputs-find.log 2>&1 || echo "no outputs dir" >> outputs-find.log
+          echo "=== find app/build for apk anywhere ===" >> outputs-find.log
+          find app/build -iname "*.apk" >> outputs-find.log 2>&1 || true
+          cat outputs-find.log
+
+      - name: Always save diagnostic logs to repo
+        if: always()
+        run: |
+          tail -n 400 build-error.log > build-error-tail.log 2>/dev/null || echo "no build-error.log" > build-error-tail.log
           git config user.email "bot@users.noreply.github.com"
           git config user.name "build-bot"
-          git add -f build-error-tail.log
-          git commit -m "Add build error log [skip ci]" || true
-          git push
+          git add -f build-error-tail.log outputs-find.log
+          git commit -m "Diagnostic logs [skip ci]" || true
+          git push || true
 
       - name: Fail job if build failed
         if: steps.build.outcome == 'failure'
