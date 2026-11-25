@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   build:
@@ -37,7 +37,23 @@ jobs:
           gradle-version: '8.7'
 
       - name: Build debug APK
-        run: gradle assembleDebug --stacktrace --no-daemon
+        id: build
+        continue-on-error: true
+        run: gradle assembleDebug --stacktrace --no-daemon 2>&1 | tee build-error.log
+
+      - name: Save error log to repo if build failed
+        if: steps.build.outcome == 'failure'
+        run: |
+          tail -n 300 build-error.log > build-error-tail.log
+          git config user.email "bot@users.noreply.github.com"
+          git config user.name "build-bot"
+          git add -f build-error-tail.log
+          git commit -m "Add build error log [skip ci]" || true
+          git push
+
+      - name: Fail job if build failed
+        if: steps.build.outcome == 'failure'
+        run: exit 1
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
