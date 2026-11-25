@@ -53,7 +53,7 @@
             android:foregroundServiceType="specialUse">
             <property
                 android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
-                android:value="Personal anti-theft monitoring" />
+                android:value="Personal anti-theft monitoring: keeps a connection to the owner's own laptop agent to raise security alerts" />
         </service>
 
         <receiver
